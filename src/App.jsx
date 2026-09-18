@@ -7,6 +7,7 @@ import BOMMaster from './pages/admin/BOMMaster';
 import Reports from './pages/admin/Reports';
 import StockUpdate from './pages/admin/StockUpdate';
 import Users from './pages/admin/Users';
+import Email from './pages/admin/Email';
 import { getCurrentUser } from './services/session';
 import { canOpenRoute } from './services/permissions';
 
@@ -29,6 +30,7 @@ function App() {
         <Route path="/admin/stock" element={<ProtectedRoute routeKey="stock"><StockUpdate /></ProtectedRoute>} />
         <Route path="/admin/reports" element={<ProtectedRoute routeKey="reports"><Reports /></ProtectedRoute>} />
         <Route path="/admin/users" element={<ProtectedRoute routeKey="users"><Users /></ProtectedRoute>} />
+        <Route path="/admin/email" element={<ProtectedRoute routeKey="email"><Email /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

@@ -438,3 +438,192 @@ export function getRecentAuditLogs(limit = 30) {
       createdAt: row.created_at,
     }));
 }
+
+export function getEmailRecipients() {
+  return db
+    .prepare(
+      `SELECT *
+       FROM email_recipients
+       ORDER BY name`
+    )
+    .all()
+    .map((row) => ({
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      role: row.role || "",
+      enabled: Boolean(row.enabled),
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    }));
+}
+
+export function addEmailRecipient({ name, email, role }) {
+  const result = db
+    .prepare(
+      `INSERT INTO email_recipients
+       (name, email, role)
+       VALUES (?, ?, ?)`
+    )
+    .run(
+      name,
+      email,
+      role || "",
+    );
+
+  return db
+    .prepare("SELECT * FROM email_recipients WHERE id = ?")
+    .get(result.lastInsertRowid);
+}
+
+export function updateEmailRecipient(id, { name, email, role, enabled }) {
+  db.prepare(
+    `UPDATE email_recipients
+     SET name = ?,
+         email = ?,
+         role = ?,
+         enabled = ?,
+         updated_at = datetime('now')
+     WHERE id = ?`
+  ).run(
+    name,
+    email,
+    role || "",
+    enabled ? 1 : 0,
+    id,
+  );
+
+  return db
+    .prepare("SELECT * FROM email_recipients WHERE id = ?")
+    .get(id);
+}
+
+export function deleteEmailRecipient(id) {
+  db.prepare(
+    "DELETE FROM email_recipients WHERE id = ?"
+  ).run(id);
+}
+
+export function getEmailSettings() {
+  let settings = db
+    .prepare(
+      "SELECT * FROM email_settings ORDER BY id LIMIT 1"
+    )
+    .get();
+
+  // Create default settings if none exist.
+  if (!settings) {
+    const result = db
+      .prepare(
+        `INSERT INTO email_settings
+         (enabled, send_time, report_type)
+         VALUES (?, ?, ?)`
+      )
+      .run(1, "17:30", "daily_inventory");
+
+    settings = db
+      .prepare(
+        "SELECT * FROM email_settings WHERE id = ?"
+      )
+      .get(result.lastInsertRowid);
+  }
+
+  return {
+    id: settings.id,
+    enabled: Boolean(settings.enabled),
+    sendTime: settings.send_time,
+    reportType: settings.report_type,
+    updatedAt: settings.updated_at,
+  };
+}
+
+export function updateEmailSettings({
+  enabled,
+  sendTime,
+  reportType,
+}) {
+  const existing = getEmailSettings();
+
+  db.prepare(
+    `UPDATE email_settings
+     SET enabled = ?,
+         send_time = ?,
+         report_type = ?,
+         updated_at = datetime('now')
+     WHERE id = ?`
+  ).run(
+    enabled ? 1 : 0,
+    sendTime || "17:30",
+    reportType || "daily_inventory",
+    existing.id,
+  );
+
+  return getEmailSettings();
+}
+
+export function createEmailReportLog({
+  reportDate,
+  sentAt,
+  status,
+  recipientCount,
+  errorMessage,
+}) {
+  const result = db
+    .prepare(
+      `INSERT INTO email_report_logs
+       (
+         report_date,
+         sent_at,
+         status,
+         recipient_count,
+         error_message
+       )
+       VALUES (?, ?, ?, ?, ?)`
+    )
+    .run(
+      reportDate,
+      sentAt || null,
+      status,
+      recipientCount || 0,
+      errorMessage || null,
+    );
+
+  return db
+    .prepare(
+      "SELECT * FROM email_report_logs WHERE id = ?"
+    )
+    .get(result.lastInsertRowid);
+}
+
+export function getRecentEmailReportLogs(limit = 30) {
+  return db
+    .prepare(
+      `SELECT *
+       FROM email_report_logs
+       ORDER BY id DESC
+       LIMIT ?`
+    )
+    .all(Number(limit) || 30)
+    .map((row) => ({
+      id: row.id,
+      reportDate: row.report_date,
+      sentAt: row.sent_at,
+      status: row.status,
+      recipientCount: row.recipient_count,
+      errorMessage: row.error_message,
+      createdAt: row.created_at,
+    }));
+}
+export function hasSuccessfulEmailReport(reportDate) {
+  const row = db
+    .prepare(
+      `SELECT 1
+       FROM email_report_logs
+       WHERE report_date = ?
+         AND status = 'SENT'
+       LIMIT 1`
+    )
+    .get(reportDate);
+
+  return Boolean(row);
+}

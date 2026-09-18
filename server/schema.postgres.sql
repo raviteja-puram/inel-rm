@@ -140,6 +140,9 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_email_report_logs_one_success_per_day
+ON email_report_logs(report_date)
+WHERE status = 'SENT';
 CREATE INDEX IF NOT EXISTS idx_bom_fg ON fg_bom_items(fg_part_no);
 CREATE INDEX IF NOT EXISTS idx_bom_component ON fg_bom_items(component_id);
 CREATE INDEX IF NOT EXISTS idx_prod_plan_date ON production_plans(production_date);

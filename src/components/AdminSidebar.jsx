@@ -50,6 +50,12 @@ const icons = {
       <path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" />
     </>
   ),
+  email: (
+    <>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="m3 7 9 7 9-7" />
+    </>
+  ),
 };
 
 const NAV_ITEMS = [
@@ -59,6 +65,7 @@ const NAV_ITEMS = [
   { key: "bom", label: "BOM / Production", path: "/admin/bommaster" },
   { key: "stock", label: "Upload Stock", path: "/admin/stock" },
   { key: "reports", label: "Reports", path: "/admin/reports" },
+  { key: "email", label: "Email Management", path: "/admin/email" },
   { key: "users", label: "Users", path: "/admin/users" },
 ];
 

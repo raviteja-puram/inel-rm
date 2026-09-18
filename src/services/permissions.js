@@ -6,7 +6,7 @@ export const ROLE_LABELS = {
 
 const ROLE_PERMISSIONS = {
   admin: {
-    routes: ['dashboard', 'components', 'products', 'bom', 'stock', 'reports', 'users'],
+    routes: ['dashboard', 'components', 'products', 'bom', 'stock', 'reports', 'users' , 'email'],
     canManageUsers: true,
     canResetData: true,
     canManageMasters: true,

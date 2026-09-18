@@ -27,6 +27,13 @@ import {
   upsertFgStockSnapshot,
   getWorkingDaysCalendar,
   saveWorkingDaysCalendar,
+  getEmailRecipients,
+  addEmailRecipient,
+  updateEmailRecipient,
+  deleteEmailRecipient,
+  getEmailSettings,
+  updateEmailSettings,
+  getRecentEmailReportLogs,
 } from "../utils/repository.js";
 import { findSimilarFgProducts } from "../utils/similarity.js";
 import {
@@ -772,7 +779,7 @@ router.get("/reports", (req, res) => {
     productionRuns,
   );
 
-router. get =("/reports/sumk")
+// router. get =("/reports/sumk")
 
   const allMetrics = getDashboardMetrics(
     components,
@@ -799,6 +806,85 @@ router.post("/reports/email-now", async (_req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+router.get("/email/recipients", (_req, res) => {
+  res.json(getEmailRecipients());
+});
+
+router.post("/email/recipients", (req, res) => {
+  try {
+    const { name, email, role } = req.body;
+
+    if (!name || !email) {
+      return res.status(400).json({
+        error: "Name and email are required.",
+      });
+    }
+
+    const recipient = addEmailRecipient({
+      name,
+      email,
+      role,
+    });
+
+    res.status(201).json(recipient);
+  } catch (err) {
+    res.status(400).json({
+      error: err.message,
+    });
+  }
+});
+
+router.put("/email/recipients/:id", (req, res) => {
+  try {
+    const recipient = updateEmailRecipient(
+      Number(req.params.id),
+      req.body,
+    );
+
+    res.json(recipient);
+  } catch (err) {
+    res.status(400).json({
+      error: err.message,
+    });
+  }
+});
+
+router.delete("/email/recipients/:id", (req, res) => {
+  try {
+    deleteEmailRecipient(Number(req.params.id));
+
+    res.json({
+      ok: true,
+    });
+  } catch (err) {
+    res.status(400).json({
+      error: err.message,
+    });
+  }
+});
+
+router.get("/email/settings", (_req, res) => {
+  res.json(getEmailSettings());
+});
+
+router.put("/email/settings", (req, res) => {
+  try {
+    const settings = updateEmailSettings(req.body);
+
+    res.json(settings);
+  } catch (err) {
+    res.status(400).json({
+      error: err.message,
+    });
+  }
+});
+
+router.get("/email/logs", (req, res) => {
+  const limit = Number(req.query.limit) || 30;
+
+  res.json(getRecentEmailReportLogs(limit));
 });
 
 export default router;
