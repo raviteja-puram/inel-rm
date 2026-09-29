@@ -64,17 +64,6 @@ function buildDailyDigestHtml({ dateKey, runs, movements, critical }) {
   </div>`;
 }
 
-// function getSmtpConfig() {
-//   return {
-//     host: process.env.SMTP_HOST,
-//     port: Number(process.env.SMTP_PORT || 587),
-//     secure: String(process.env.SMTP_SECURE || '').toLowerCase() === 'true',
-//     user: process.env.SMTP_USER,
-//     pass: process.env.SMTP_PASS,
-//     from: process.env.SMTP_FROM || process.env.SMTP_USER,
-//     to: process.env.DAILY_MAIL_TO || process.env.RISK_MAIL_TO || process.env.SMTP_TO,
-//   };
-// }
 function getSmtpConfig() {
   return {
     host: process.env.SMTP_HOST,
@@ -86,16 +75,6 @@ function getSmtpConfig() {
   };
 }
 
-// export async function sendRiskEmailNow() {
-//   const config = getSmtpConfig();
-//   if (!config.host || !config.from || !config.to) throw new Error('SMTP not configured. Set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM and DAILY_MAIL_TO.');
-//   const nodemailer = await import('nodemailer').catch(() => null);
-//   if (!nodemailer) throw new Error('nodemailer is not installed.');
-//   const digest = getDailyDigestData();
-//   const transporter = nodemailer.default.createTransport({ host: config.host, port: config.port, secure: config.secure, auth: config.user && config.pass ? { user: config.user, pass: config.pass } : undefined });
-//   await transporter.sendMail({ from: config.from, to: config.to, subject: `INEL RM Evening Digest - ${digest.dateKey}`, html: buildDailyDigestHtml(digest) });
-//   return { sent: true, itemCount: digest.critical.length, stockInwardCount: digest.movements.length, productionCount: digest.runs.length, date: digest.dateKey };
-// }
 export async function sendRiskEmailNow() {
   const config = getSmtpConfig();
 
@@ -171,23 +150,6 @@ export async function sendRiskEmailNow() {
     throw error;
   }
 }
-
-// export function startDailyRiskEmailJob() {
-//   const sendTime = process.env.DAILY_MAIL_TIME || process.env.RISK_MAIL_TIME || DEFAULT_SEND_TIME;
-//   let lastSentDate = '';
-//   const checkAndSend = async () => {
-//     const now = new Date();
-//     const today = localDateKey(now);
-//     const hhmm = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-//     if (hhmm < sendTime || lastSentDate === today) return;
-//     try { await sendRiskEmailNow(); lastSentDate = today; console.log(`Evening operations digest sent for ${today}`); }
-//     catch (error) { console.error(`Evening operations digest failed: ${error.message}`); }
-//   };
-//   const timer = setInterval(checkAndSend, 60 * 1000);
-//   timer.unref?.();
-//   checkAndSend();
-//   return timer;
-// }
 
 export function startDailyRiskEmailJob() {
   let lastSentDate = '';

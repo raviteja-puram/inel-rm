@@ -167,8 +167,8 @@ CREATE TABLE IF NOT EXISTS email_report_logs (
     error_message TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-CREATE UNIQUE INDEX IF NOT EXISTS idx_email_report_logs_one_success_per_day
-ON email_report_logs(report_date)
-WHERE status = 'SENT';
+-- CREATE UNIQUE INDEX IF NOT EXISTS idx_email_report_logs_one_success_per_day
+-- ON email_report_logs(report_date)
+-- WHERE status = 'SENT';
 
 CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_logs(created_at);

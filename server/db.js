@@ -15,6 +15,9 @@ db.pragma("foreign_keys = ON");
 
 const schema = fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8");
 db.exec(schema);
+db.prepare(`
+    DROP INDEX IF EXISTS idx_email_report_logs_one_success_per_day
+`).run();
 setWorkingDaysCalendar(
   db.prepare("SELECT month_key AS monthKey, working_days AS workingDays FROM working_days_calendar").all(),
 );
