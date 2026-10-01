@@ -161,11 +161,15 @@ function Email() {
       try {
         setSavingRecipient(true);
 
+        const currentRecipient = recipients.find(
+          (recipient) => recipient.id === id
+        );
+
         const updated = await updateEmailRecipient(id, {
           name: editRecipientName.trim(),
           email: editRecipientEmail.trim(),
           role: editRecipientRole.trim(),
-          enabled: true,
+          enabled: currentRecipient?.enabled ?? true,
         });
 
         setRecipients((current) =>
@@ -190,6 +194,39 @@ function Email() {
         alert(error.message || 'Failed to update recipient.');
       } finally {
         setSavingRecipient(false);
+      }
+    }
+    async function handleToggleRecipient(recipient) {
+      try {
+        const updated = await updateEmailRecipient(recipient.id, {
+          name: recipient.name,
+          email: recipient.email,
+          role: recipient.role || '',
+          enabled: !recipient.enabled,
+        });
+
+        setRecipients((current) =>
+          current.map((item) =>
+            item.id === recipient.id
+              ? {
+                  ...item,
+                  name: updated.name,
+                  email: updated.email,
+                  role: updated.role || '',
+                  enabled: Boolean(updated.enabled),
+                }
+              : item
+          )
+        );
+
+        alert(
+          updated.enabled
+            ? `${recipient.name} is now Active.`
+            : `${recipient.name} is now Inactive.`
+        );
+      } catch (error) {
+        console.error('Failed to update recipient status:', error);
+        alert(error.message || 'Failed to update recipient status.');
       }
     }
     function handleCancelEdit() {
@@ -423,7 +460,17 @@ function Email() {
                           </td>
 
                           <td className="px-4 py-3">
-                            {recipient.enabled ? 'Active' : 'Disabled'}
+                            <button
+                              type="button"
+                              onClick={() => handleToggleRecipient(recipient)}
+                              className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                                recipient.enabled
+                                  ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                                  : 'bg-red-100 text-red-700 hover:bg-red-200'
+                              }`}
+                            >
+                              {recipient.enabled ? 'Active' : 'Inactive'}
+                            </button>
                           </td>
 
                           <td className="px-4 py-3">

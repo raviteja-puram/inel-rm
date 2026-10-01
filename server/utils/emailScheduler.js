@@ -11,6 +11,7 @@ import {
 } from './repository.js';
 import { buildComponentMetrics } from './calculations.js';
 import { getMonthKeyFromDate } from './workingDays.js';
+import { buildDailyExcelReport } from './excelReport.js';
 
 const DEFAULT_SEND_TIME = '17:30';
 const pad = (value) => String(value).padStart(2, '0');
@@ -102,6 +103,7 @@ export async function sendRiskEmailNow() {
 
   const digest = getDailyDigestData();
 
+  const excelReport = await buildDailyExcelReport(digest.dateKey);
   const transporter = nodemailer.default.createTransport({
     host: config.host,
     port: config.port,
@@ -121,6 +123,14 @@ export async function sendRiskEmailNow() {
       to: recipients,
       subject: `INEL RM Evening Digest - ${digest.dateKey}`,
       html: buildDailyDigestHtml(digest),
+      attachments: [
+      {
+        filename: excelReport.filename,
+        content: excelReport.buffer,
+        contentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      },
+    ],
     });
 
     createEmailReportLog({
